@@ -1,12 +1,12 @@
 import pyodbc
 import streamlit as st
 
-# --- CONFIGURAÇÕES DO AZURE (Substitua pelos seus dados!) ---
+
 DB_CONFIG = {
     'server': 'servidor-midnight-04.database.windows.net', # O nome do seu servidor no Canadá
     'database': 'financasdb',
-    'username': 'meia69', # Seu login que vimos no print
-    'password': 'Arthur.shake270606', # A senha forte que você criou
+    'username':
+    'password': 
     'driver': '{ODBC Driver 17 for SQL Server}' # Driver padrão do Windows
 }
 
@@ -24,8 +24,7 @@ def inicializar_banco_azure():
     conn = get_connection()
     cursor = conn.cursor()
     
-    # Criando as tabelas com sintaxe SQL Server (Azure)
-    # Nota: No Azure usamos VARCHAR(MAX) ou NVARCHAR em vez de apenas TEXT
+
     cursor.execute('''
         IF NOT EXISTS (SELECT * FROM sysobjects WHERE name='users' AND xtype='U')
         CREATE TABLE users (
@@ -48,7 +47,7 @@ def inicializar_banco_azure():
         )
     ''')
     
-    # Adicione as outras tabelas (sonhos, investimentos) seguindo o mesmo padrão IDENTITY(1,1)
+
     
     conn.commit()
     conn.close()
