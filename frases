@@ -1,0 +1,25 @@
+frases normais:
+Gastei 50 no Mercado,
+Paguei 100 no Ifood no Pix,
+Gastei 30 no McDonalds,
+
+datas:
+Gastei 120 no Posto ontem
+Compra de 50 na Farmácia anteontem
+Gastei 20 na Padaria na segunda-feira
+
+parcelamento:
+Compra de 1200 na Amazon em 10x
+Comprei um celular de 2500 na Magalu em 12 parcelas
+apagar:
+Apague o ultimo ou Desfazer X
+
+Mude o valor para 50 X
+Mude a loja para Uber X
+
+Quanto gastei esse mês? (ele falou somando o parcelamento com o total do mes e não aparcela)
+Quanto gastei no Uber? (colocou tudo como uber e falou que gastei tudo nessa categoria)
+ignora:
+Nubank:Você tem um empréstimo pré-aprovado de R$ 5.000. Confira! X
+Retorna valor tipo 
+Compra aprovada no Cartão Nubank em IFOOD R$ 45,90
