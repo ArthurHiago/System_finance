@@ -1,6 +1,6 @@
 streamlit
 pandas
+pyodbc
+Werkzeug
 matplotlib
-python-dateutil
 thefuzz
-werkzeug

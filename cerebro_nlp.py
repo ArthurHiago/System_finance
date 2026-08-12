@@ -84,7 +84,7 @@ class CerebroFinanceiro:
         except Exception as e:
             return f"⚠️ Erro ao conectar com o Google ou Banco: {e}"
 
-    # --- 1. O ORÁCULO (PREVISÃO) ---
+   # --- 1. O ORÁCULO (PREVISÃO) ---
     def analisar_oraculo(self, user_id, renda_mensal):
         conn = self.get_conexao_azure()
         cursor = conn.cursor()
@@ -92,9 +92,9 @@ class CerebroFinanceiro:
         dia_atual = hoje.day
         ultimo_dia_mes = calendar.monthrange(hoje.year, hoje.month)[1]
         
-        # Azure usa MONTH() para extrair o mês da data
-        sql = "SELECT SUM(valor) FROM transacoes WHERE user_id=? AND MONTH(data_compra)=?"
-        res = cursor.execute(sql, (user_id, hoje.month)).fetchone()
+        # Azure usa MONTH() e YEAR()
+        sql = "SELECT SUM(valor) FROM transacoes WHERE user_id=? AND MONTH(data_compra)=? AND YEAR(data_compra)=?"
+        res = cursor.execute(sql, (user_id, hoje.month, hoje.year)).fetchone()
         gasto_atual = res[0] if res[0] else 0
         conn.close()
 
@@ -102,12 +102,39 @@ class CerebroFinanceiro:
         dias_restantes = ultimo_dia_mes - dia_atual
         projecao_gasto = gasto_atual + (media_diaria * dias_restantes)
         saldo_projetado = renda_mensal - projecao_gasto
+        saldo_atual = renda_mensal - gasto_atual
         
-        status = "🟢 Positivo" if saldo_projetado > 0 else "🔴 Negativo"
-        msg = f"Nesse ritmo, você gastará **R$ {projecao_gasto:.2f}**. Saldo final: **R$ {saldo_projetado:.2f}**."
+        # LÓGICA DO ALERTA VERMELHO
+        mensagem_alerta = ""
+        dia_falencia = None
         
-        return {"gasto_atual": gasto_atual, "projecao": projecao_gasto, "saldo_final": saldo_projetado, "msg": msg, "status": status}
-
+        if saldo_atual <= 0:
+            mensagem_alerta = "🚨 Você JÁ ESTÁ no vermelho este mês!"
+            status = "🔴 Negativo"
+        elif saldo_projetado < 0 and media_diaria > 0:
+            dias_para_zerar = saldo_atual / media_diaria
+            dia_falencia = hoje + timedelta(days=dias_para_zerar)
+            
+            if dia_falencia.month == hoje.month:
+                mensagem_alerta = f"⚠️ ALERTA: Se mantiver a média de R$ {media_diaria:.2f}/dia, seu dinheiro acaba dia **{dia_falencia.day:02d}/{dia_falencia.month:02d}**."
+            else:
+                mensagem_alerta = "⚠️ ALERTA: Seu saldo vai ficar negativo logo no início do próximo mês nesse ritmo."
+            status = "🔴 Negativo"
+        else:
+            mensagem_alerta = f"✅ Tudo sob controle! Você chegará ao fim do mês com R$ {saldo_projetado:.2f} sobrando."
+            status = "🟢 Positivo"
+            
+        msg = f"Nesse ritmo, você gastará **R$ {projecao_gasto:.2f}** no total."
+        
+        return {
+            "gasto_atual": gasto_atual, 
+            "projecao": projecao_gasto, 
+            "saldo_final": saldo_projetado, 
+            "msg": msg, 
+            "status": status,
+            "alerta_vermelho": mensagem_alerta,
+            "media_diaria": media_diaria
+        }
     # --- 2. AGENDA DE CONTAS FIXAS ---
     def adicionar_conta_fixa(self, nome, valor, dia, user_id):
         conn = self.get_conexao_azure()
